@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORMULARIO</title>
+
+    <script src="jspdf.min.js"></script>
+    <script src="jspdf.plugin.autotable.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        body {
+            background-color: rgba(126, 163, 204, 0.7);
+        }
+
+        #contenedor {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;            
+        }
+
+        #centro {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 70%;
+            border-radius: 15px;
+            padding: 40px 0;
+            background-color: #8EA8C3;
+            transition-property: background-color, box-shadow;
+            transition-duration: 3s;
+        }
+
+        #centro:hover {
+            box-shadow: 5px 5px 10px #021069;
+            background-color: rgba(35, 88, 149, 0.6);
+            color: white;
+        }
+
+        #tablaDatos {
+            display: flex;
+            justify-content: center;
+            width: 80%;
+            margin: 2%;
+        }
+
+        #botones {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin: 2%;
+        }
+
+        #botones {
+            margin: 0 10px;
+            /* Ajusta el espacio entre los botones */
+        }
+
+        #encabezado {
+            text-align: center;
+            background-color: black;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            /* Agrega margen superior para separar la tabla de los elementos anteriores */
+        }
+
+        th,
+        td {
+            padding: 10px;
+            /* Ajusta el espacio interno de celdas */
+            text-align: center;
+        }
+
+        th:first-child,
+        td:first-child {
+            text-align: left;
+            /* Alinea a la izquierda la primera columna */
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 200px;
+            /* Puedes ajustar el valor según tus necesidades */
+            padding: 8px;
+            /* Ajusta el espacio interno */
+            margin: 5px 0;
+            /* Ajusta el espacio exterior */
+            text-align: center;
+            /* Centra el texto dentro del input */
+            border-radius: 10px;
+            background-color: transparent;
+            border: none;
+            border-bottom: solid black;
+        }
+
+        input[type="text"]:hover,
+        input[type="number"]:hover {
+            background-color: transparent;
+            color: white;
+            border: none;
+            border-bottom: solid white;
+        }
+
+        /* Estilos adicionales para el botón con icono */
+        .icon-button {
+            border-radius: 10px;
+            padding: 10px;
+            /* Ajusta el espacio alrededor del icono */
+            background-color: #dd1e13;
+            /* Color de fondo del botón */
+            border: none;
+            /* Quita el borde */
+            cursor: pointer;
+            /* Cambia el cursor al pasar el ratón */
+            color: white;
+            /* Color del icono */
+            font-size: 25px;
+            /* Tamaño del icono */
+            /* Ajusta otros estilos según sea necesario */
+            margin: 0 10px;
+            transition: 2s ease;
+        }
+
+        button:hover {
+            background-color: white;
+            color: #dd1e13;
+        }
+
+        @media (width >=300px) and (width <=600px) {
+            #centro {
+                width: 80%;
+            }
+
+            input[type="text"],
+            input[type="number"] {
+                width: 100px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="contenedor">
+        <div id="centro" class="contenedor">
+            <form>
+                <label>Descripción</label><br><input type="text" id="desc"><br><br>
+                <label>Precio</label><br><input type="number" id="precio"><br><br>
+                <label>Título de la tabla</label><br><input type="text" id="tituloTabla"><br><br>
+            </form>
+            <div id="botones">
+                <!-- <input type="button" onclick="insertarFila()" value="Agregar valores"> -->
+                <button class="icon-button" onclick="insertarFila()"><i class="fa-solid fa-plus"></i></button>
+                <button class="icon-button" onclick="generarPDF()"><i class="fa-solid fa-file-pdf"></i></button>
+                <!-- <input type="button" onclick="generarPDF()" value="Generar pdf"><br><br> -->
+            </div>
+
+
+            <div id="tablaDatos">
+                <table id="datos" border="1">
+                    <tr>
+                        <th colspan="2" id="encabezado"></th>
+                    </tr>
+                </table><br>
+            </div>
+            <label id="total">Total =</label>
+        </div>
+    </div>
+
+    <script>
+        var total = 0;
+        var tituloTabla = document.getElementById('tituloTabla');
+        tituloTabla.addEventListener('input', insertarTitulo);
+
+        function insertarTitulo() {
+            document.getElementById('encabezado').innerHTML = tituloTabla.value;
+        }
+
+        function insertarFila() {
+            var descripcion = document.getElementById('desc').value;
+            var precioValor = document.getElementById('precio').value;
+
+            // Verificar si ambos campos están llenos
+            if (descripcion.trim() !== '' && precioValor.trim() !== '') {
+                let datos = document.getElementById('datos').insertRow(1);
+                let desc = datos.insertCell(0);
+                let precio = datos.insertCell(1);
+
+                desc.innerHTML = descripcion;
+                precio.innerHTML = precioValor;
+
+                var subtotal = parseFloat(precioValor);
+                if (!isNaN(subtotal)) {
+                    total += subtotal;
+                    document.getElementById("total").innerText = 'Total = $' + total;
+                    document.getElementById('desc').value = '';
+                    document.getElementById('precio').value = '';
+                } else {
+                    alert("Por favor, ingresa un número válido.");
+                }
+            } else {
+                alert("Por favor, completa ambos campos.");
+            }
+        }
+
+        // function generarPDF() {
+        //     var doc = new jsPDF();
+
+        //     var tabla = document.getElementById('tablaDatos').innerHTML;
+
+        //     doc.fromHTML(tabla, 15, 15);
+
+        //     doc.save(tituloTabla.value + '.pdf');
+        // }
+
+        function generarPDF() {
+            if (tituloTabla.value != '') {
+                var doc = new jsPDF({
+                    orientation: 'portrait', // Orientación del documento (puede ser 'portrait' o 'landscape')
+                    unit: 'mm', // Unidad de medida (milímetros)
+                    format: 'letter' // Tamaño del papel (carta)
+                });
+
+                // Agregar el título de la tabla
+                doc.setFontSize(20);
+                doc.setTextColor(255, 255, 255);
+                doc.setFillColor(0, 0, 0);
+                doc.text(tituloTabla.value, doc.internal.pageSize.width / 2, 15, null, null, 'center');
+                doc.setLineWidth(0.1);
+                doc.line(15, 18, doc.internal.pageSize.width - 15, 18);
+
+                // Crear la tabla
+                var tabla = document.getElementById('datos');
+                var filas = tabla.rows;
+
+                var col = [];
+                for (var i = 1; i < filas.length; i++) { // Empezar desde la fila 1 para omitir la fila del título
+                    var fila = [];
+                    var celdas = filas[i].cells;
+                    for (var j = 0; j < celdas.length; j++) {
+                        // Formatear números con separación de miles
+                        var numero = celdas[j].innerText;
+                        if (!isNaN(numero)) {
+                            numero = parseFloat(numero).toLocaleString(); // Agregar separación de miles
+                        }
+                        // Agregar signo de dólar a la izquierda y número formateado a la derecha
+                        fila.push(j === 1 ? '$' + numero : numero);
+                    }
+                    col.push(fila);
+                }
+
+                // Calcular la posición X para alinear el texto del total en el lado derecho
+                var totalX = doc.internal.pageSize.width - doc.getStringUnitWidth('Total: $' + total) * doc.internal.getFontSize();
+
+                doc.autoTable({
+                    head: [[{ content: tituloTabla.value, colSpan: 2, styles: { halign: 'center' } }]], // Encabezado combinado con colspan
+                    body: col,
+                    startY: 25,
+                    tableWidth: 'auto', // Hacer que la tabla se ajuste al ancho del documento
+                    theme: 'grid', // Utilizar el tema de rejilla para mostrar los bordes de las celdas
+                    styles: {
+                        lineWidth: 0.1, // Ancho del borde
+                        lineColor: [0, 0, 0], // Color del borde (en este caso, negro)
+                        columnWidth: 'auto' // Ajustar el ancho de las columnas automáticamente
+                    },
+                    headStyles: {
+                        fillColor: [0, 0, 0], // Color de fondo del encabezado (en este caso, negro)
+                        textColor: [255, 255, 255], // Color del texto (en este caso, blanco)
+                    },
+                    columnStyles: {
+                        1: { halign: 'right' } // Alinear la segunda columna (precios) a la derecha
+                    }
+                });
+
+                // Agregar el total formateado
+                var totalFormateado = parseFloat(total).toLocaleString(); // Formatear el total con separación de miles
+                doc.setTextColor(0, 0, 0);
+                doc.text(totalX, doc.autoTable.previous.finalY + 10, 'Total: $' + totalFormateado);
+
+                // Guardar el documento PDF
+                doc.save(tituloTabla.value + '.pdf');
+            } else {
+                alert('Agrega un título a la tabla');
+            }
+        }
+
+    </script>
+</body>
+
+</html>
